@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  master:
+    image: elasticsearch
+    command: elasticsearch -E cluster.name=docker -E node.master=true
+    ports:
+      - 9200
+      - 9300
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - ./config:/usr/share/elasticsearch/config
+    restart: always
+    networks:
+      - esnet
+
+  slave:
+    image: elasticsearch
+    command: elasticsearch -E cluster.name=docker -E discovery.zen.ping.unicast.hosts=master
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - ./config:/usr/share/elasticsearch/config
+    networks:
+      - esnet
+
+networks:
+  esnet:
+    driver: bridge
