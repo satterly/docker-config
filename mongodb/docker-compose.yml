@@ -6,8 +6,6 @@ services:
     command: mongod --replSet rs0 --smallfiles
     ports:
       - 27017
-    environment:
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     volumes:
       - /data/db
       - /data/configdb
@@ -18,8 +16,6 @@ services:
   secondary:
     image: mongo
     command: mongod --replSet rs0 --smallfiles
-    environment:
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     volumes:
       - /data/db
       - /data/configdb
