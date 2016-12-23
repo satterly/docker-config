@@ -3,7 +3,7 @@ version: '2'
 services:
   primary:
     image: mongo
-    command: mongod --replSet ${REPLSET} --smallfiles
+    command: mongod --replSet ${REPLSET} --smallfiles --oplogSize 128
     ports:
       - 27017
     volumes:
@@ -15,7 +15,7 @@ services:
 
   secondary:
     image: mongo
-    command: mongod --replSet ${REPLSET} --smallfiles
+    command: mongod --replSet ${REPLSET} --smallfiles --oplogSize 128
     ports:
       - 27017
     volumes:
@@ -26,7 +26,7 @@ services:
 
   arbiter:
     image: mongo
-    command: mongod --replSet ${REPLSET} --smallfiles
+    command: mongod --replSet ${REPLSET} --smallfiles --oplogSize 1
     ports:
       - 27017
     volumes:
