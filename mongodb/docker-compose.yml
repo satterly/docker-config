@@ -3,7 +3,7 @@ version: '2'
 services:
   primary:
     image: mongo
-    command: mongod --replSet rs0 --smallfiles
+    command: mongod --replSet ${REPLSET} --smallfiles
     ports:
       - 27017
     volumes:
@@ -15,10 +15,22 @@ services:
 
   secondary:
     image: mongo
-    command: mongod --replSet rs0 --smallfiles
+    command: mongod --replSet ${REPLSET} --smallfiles
+    ports:
+      - 27017
     volumes:
       - /data/db
       - /data/configdb
+    networks:
+      - mongonet
+
+  arbiter:
+    image: mongo
+    command: mongod --replSet ${REPLSET} --smallfiles
+    ports:
+      - 27017
+    volumes:
+      - /data/db
     networks:
       - mongonet
 
