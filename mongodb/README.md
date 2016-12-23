@@ -12,10 +12,9 @@ Get mapped MongoDB port for the primary:
 
 Initiate the primary and add the secondary to the replica set:
 
-    $ mongo admin --port 32773 --eval 'rs.initiate(); ; rs.add("secondary")'
+    $ mongo admin --port 32773 --eval 'rs.initiate(); rs.add("secondary")'
 
 References
 ----------
 
-  * "Append a scale number at the tail of hostname" - https://github.com/docker/compose/issues/677
   * Deploy MongoDB Replica Set - https://docs.mongodb.com/manual/tutorial/deploy-replica-set/
