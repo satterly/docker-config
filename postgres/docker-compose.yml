@@ -1,0 +1,21 @@
+version: '2.1'
+services:
+  master:
+    image: postgres
+    ports:
+      - 5432
+    volumes:
+      - /data/pgdata
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - PGDATA=/data/pgdata
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
+      - POSTGRES_INITDB_ARGS=${POSTGRES_INITDB_ARGS}
+    restart: always
+    networks:
+      - pgnet
+
+networks:
+  pgnet:
+    driver: bridge
