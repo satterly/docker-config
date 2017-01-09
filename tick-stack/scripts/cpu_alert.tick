@@ -1,0 +1,9 @@
+stream
+    // Select just the cpu measurement from our example database.
+    |from()
+        .measurement('cpu')
+    |alert()
+        .warn(lambda: "usage_idle" <  99)
+        .crit(lambda: "usage_idle" <  95)
+        .alerta()
+
