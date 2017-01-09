@@ -1,0 +1,85 @@
+version: '2.1'
+
+services:
+  telegraf:
+    image: telegraf
+    volumes:
+      - ./config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    ports:
+      - "8092:8092/udp"
+      - "8094:8094"
+      - "8125:8125/udp"
+    restart: always
+    networks:
+      - influxnet
+      - dbnet
+
+  influxdb:
+    image: influxdb
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb
+    ports:
+      - "8086:8086"
+    restart: always
+    networks:
+      - influxnet
+
+  chronograf:
+    image: chronograf
+    volumes:
+      - ./data/chronograf:/var/lib/chronograf
+    ports:
+      - "10000:10000"
+    networks:
+      - influxnet
+
+  kapacitor:
+    image: kapacitor
+    ports:
+      - "9092:9092"
+    volumes:
+      - ./config/kapacitor.conf:/etc/kapacitor/kapacitor.conf:ro
+      - ./data/kapacitor:/var/lib/kapacitor
+    networks:
+      - influxnet
+
+  alerta:
+    # build: ~/Docker/docker-alerta
+    image: alerta/alerta-web:latest
+    ports:
+      - 80
+    depends_on:
+      - db
+    environment:
+      - AUTH_REQUIRED=${AUTH_REQUIRED:-False}
+      - ADMIN_USERS=${ADMIN_USERS:-not-set}
+      - CUSTOMER_VIEWS=${CUSTOMER_VIEWS:-False}
+      - PROVIDER=${PROVIDER:-basic}
+      - CLIENT_ID=${CLIENT_ID:-not-set}
+      - CLIENT_SECRET=${CLIENT_SECRET:-not-set}
+      - ALLOWED_EMAIL_DOMAIN=${ALLOWED_EMAIL_DOMAIN:-*}
+      - ALLOWED_GITHUB_ORGS=${ALLOWED_GITHUB_ORGS:-*}
+      - GITLAB_URL=${GITLAB_URL:-not-set}
+      - ALLOWED_GITLAB_GROUPS=${ALLOWED_GITLAB_GROUPS:-*}
+      - PLUGINS=${PLUGINS:-reject}
+      - ORIGIN_BLACKLIST=${ORIGIN_BLACKLIST:-not-set}
+      - ALLOWED_ENVIRONMENTS=${ALLOWED_ENVIRONMENTS:-Production,Development}
+      - MONGO_URI=mongodb://db:27017/monitoring
+    restart: always
+    networks:
+      - influxnet
+      - dbnet
+
+  db:
+    image: mongo
+    volumes:
+      - ./data/mongodb:/data/db
+    restart: always
+    networks:
+      - dbnet
+
+networks:
+  influxnet:
+    driver: bridge
+  dbnet:
+    driver: bridge
