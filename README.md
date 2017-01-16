@@ -3,8 +3,12 @@ Docker Compose config files
 
 Services that can be launched using `docker-compose up`:
 
+  * [alerta with snmp](alerta-snmp)
   * [elasticsearch](elasticsearch)
   * [mongodb](mongodb)
+  * [postgres](postgres)
+  * [prometheus](prometheus)
+  * [tick-stack](tick-stack)
 
 References
 ----------
