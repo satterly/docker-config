@@ -11,7 +11,7 @@ services:
       - '-storage.local.path=/data'
       - '-alertmanager.url=http://alertmanager:9093'
     ports:
-      - 9090
+      - 9090:9090
     restart: always
     networks:
       - promnet
@@ -19,7 +19,7 @@ services:
   node:
     image: prom/node-exporter
     ports:
-      - 9100
+      - 9100:9100
     restart: always
     networks:
       - promnet
@@ -33,14 +33,14 @@ services:
       - '-config.file=/prometheus/alertmanager.yml'
       - '-storage.path=/data'
     ports:
-      - 9093
+      - 9093:9093
     networks:
       - promnet
 
   cadvisor:
     image: google/cadvisor
     ports:
-      - 8080
+      - 9880:8080
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -50,10 +50,9 @@ services:
       - promnet
 
   alerta:
-    # build: ~/Docker/docker-alerta
-    image: alerta/alerta-web:latest
+    image: alerta/test:4.10.1
     ports:
-      - 80
+      - 9080:80
     depends_on:
       - db
     environment:
@@ -67,7 +66,8 @@ services:
       - ALLOWED_GITHUB_ORGS=${ALLOWED_GITHUB_ORGS:-*}
       - GITLAB_URL=${GITLAB_URL:-not-set}
       - ALLOWED_GITLAB_GROUPS=${ALLOWED_GITLAB_GROUPS:-*}
-      - PLUGINS=${PLUGINS:-reject}
+      - PLUGINS=${PLUGINS:-reject,prometheus}
+      - ALERTMANAGER_API_URL=http://alertmanager:9093
       - ORIGIN_BLACKLIST=${ORIGIN_BLACKLIST:-not-set}
       - ALLOWED_ENVIRONMENTS=${ALLOWED_ENVIRONMENTS:-Production,Development}
       - MONGO_URI=mongodb://db:27017/monitoring
