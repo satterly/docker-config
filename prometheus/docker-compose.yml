@@ -50,7 +50,7 @@ services:
       - promnet
 
   alerta:
-    image: alerta/test:4.10.1
+    image: alerta/alerta-web
     ports:
       - 9080:80
     depends_on:
