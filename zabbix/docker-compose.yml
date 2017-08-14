@@ -1,0 +1,98 @@
+version: '2.1'
+
+services:
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:alpine-latest
+    volumes:
+      - ./data/zabbix:/var/lib/zabbix
+      - ./scripts:/usr/lib/zabbix/alertscripts
+    ports:
+      - 10050-10051:10050-10051
+    depends_on:
+      - mysql-server
+    environment:
+      - DB_SERVER_HOST=mysql-server
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - ZBX_DEBUGLEVEL=4
+    restart: always
+    networks:
+      - zbxnet
+
+  mysql-server:
+    image: mysql
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+    networks:
+      - zbxnet
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:alpine-latest
+    ports:
+      - 10080:80
+    depends_on:
+      - zabbix-server
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_USER=zabbix
+      - MYSQL_PASSWORD=zabbix
+      - ZBX_DEBUGLEVEL=4
+    restart: always
+    networks:
+      - zbxnet
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:alpine-latest
+    restart: always
+    environment:
+      - ZBX_SERVER_HOST=zabbix-server
+    ports:
+      - 10060:10050
+    depends_on:
+      - zabbix-server
+    networks:
+      - zbxnet
+
+  alerta:
+    image: alerta/alerta-web
+    ports:
+      - 9080:80
+    depends_on:
+      - db
+    environment:
+      - AUTH_REQUIRED=${AUTH_REQUIRED:-False}
+      - ADMIN_USERS=${ADMIN_USERS:-not-set}
+      - CUSTOMER_VIEWS=${CUSTOMER_VIEWS:-False}
+      - PROVIDER=${PROVIDER:-basic}
+      - CLIENT_ID=${CLIENT_ID:-not-set}
+      - CLIENT_SECRET=${CLIENT_SECRET:-not-set}
+      - ALLOWED_EMAIL_DOMAIN=${ALLOWED_EMAIL_DOMAIN:-*}
+      - ALLOWED_GITHUB_ORGS=${ALLOWED_GITHUB_ORGS:-*}
+      - GITLAB_URL=${GITLAB_URL:-not-set}
+      - ALLOWED_GITLAB_GROUPS=${ALLOWED_GITLAB_GROUPS:-*}
+      # - PLUGINS=${PLUGINS:-reject,zabbix}
+      - PLUGINS=${PLUGINS:-reject}
+      - ORIGIN_BLACKLIST=${ORIGIN_BLACKLIST:-not-set}
+      - ALLOWED_ENVIRONMENTS=${ALLOWED_ENVIRONMENTS:-Production,Development}
+      - MONGO_URI=mongodb://db:27017/monitoring
+    restart: always
+    networks:
+      - zbxnet
+
+  db:
+    image: mongo
+    volumes:
+      - ./data/mongodb:/data/db
+    restart: always
+    networks:
+      - zbxnet
+
+networks:
+  zbxnet:
+    driver: bridge
+
