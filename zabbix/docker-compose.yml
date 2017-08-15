@@ -92,12 +92,6 @@ services:
     networks:
       - zbxnet
 
-  scripts:
-    image: python:alpine
-    command: pip install git+https://github.com/alerta/zabbix-alerta
-    networks:
-      - zbxnet
-
 networks:
   zbxnet:
     driver: bridge
